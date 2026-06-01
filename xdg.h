@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-static int verbose = 0;
+static int xdg_verbose = 0;
 
 static inline int xdg__dir_exists(const char *path) {
   if (path == NULL || path[0] == '\0') {
@@ -59,7 +59,7 @@ static inline char *xdg__paths_join(const char *base, const char *dir) {
   size_t path_len = base_len + dir_len + 2;
 
   if (base_len == PATH_MAX || dir_len == PATH_MAX || path_len > PATH_MAX) {
-    if (verbose) fprintf(stderr, "DEBUG: Ignoring '%s/%s' as it exceeds PATH_MAX.\n", base, dir);
+    if (xdg_verbose) fprintf(stderr, "DEBUG: Ignoring '%s/%s' as it exceeds PATH_MAX.\n", base, dir);
     return NULL;
   }
 
@@ -102,7 +102,7 @@ static inline char *xdg__get_user_home_path(const char *home_sub_dir, const char
   size_t base_len = home_len + home_sub_dir_len + 2;
 
   if (home_len == PATH_MAX || home_sub_dir_len == PATH_MAX || base_len > PATH_MAX) {
-    if (verbose) fprintf(stderr, "DEBUG: Ignoring '%s/%s' as it exceeds PATH_MAX.\n", home, home_sub_dir);
+    if (xdg_verbose) fprintf(stderr, "DEBUG: Ignoring '%s/%s' as it exceeds PATH_MAX.\n", home, home_sub_dir);
     return NULL;
   }
 
@@ -125,7 +125,7 @@ static inline char *xdg__get_xdg_home_path(const char *xdg_home_env, const char 
   if (xdg_home != NULL && xdg_home[0] != '\0') {
     if (xdg_dir_absolute(xdg_home)) return xdg__get_or_create_path(xdg_home, dir, search);
 
-    if (verbose) fprintf(stderr, "DEBUG: Ignoring path in %s as it is not absolute.\n", xdg_home_env);
+    if (xdg_verbose) fprintf(stderr, "DEBUG: Ignoring path in %s as it is not absolute.\n", xdg_home_env);
     return xdg__get_user_home_path(home_sub_dir, dir, search);
   }
 
@@ -153,14 +153,14 @@ static inline char *xdg__get_path(const char *xdg_home_env, const char *xdg_dirs
       }
 
       if (xdg_dir_len >= PATH_MAX) {
-        if (verbose) fprintf(stderr, "DEBUG: Ignoring path in %s as it exceeds PATH_MAX.\n", xdg_dirs_env);
+        if (xdg_verbose) fprintf(stderr, "DEBUG: Ignoring path in %s as it exceeds PATH_MAX.\n", xdg_dirs_env);
       } else {
         char xdg_dir_buf[PATH_MAX];
         memcpy(xdg_dir_buf, xdg_dir, xdg_dir_len);
         xdg_dir_buf[xdg_dir_len] = '\0';
 
         if (!xdg_dir_absolute(xdg_dir_buf)) {
-          if (verbose) fprintf(stderr, "DEBUG: Ignoring path in %s as it is not absolute.\n", xdg_dirs_env);
+          if (xdg_verbose) fprintf(stderr, "DEBUG: Ignoring path in %s as it is not absolute.\n", xdg_dirs_env);
         } else {
           char *found_path = xdg__get_or_create_path(xdg_dir_buf, dir, search);
           if (found_path != NULL) return found_path;
